@@ -1,4 +1,6 @@
 pandas
 numpy
-sklearn
--e .
+scikit-learn
+matplotlib
+seaborn
+fancyimpute
