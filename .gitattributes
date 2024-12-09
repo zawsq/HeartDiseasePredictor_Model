@@ -1,3 +1,4 @@
 *.csv filter=lfs diff=lfs merge=lfs -text
 *.pkl filter=lfs diff=lfs merge=lfs -text
 notebook/data/raw/heart_2022_with_nans.csv filter=lfs diff=lfs merge=lfs -text
+notebook/data/raw/heart_2022_no_nans.csv filter=lfs diff=lfs merge=lfs -text
