@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import os
+
 
 
 from src.logger import logger
@@ -26,12 +26,17 @@ def encode_general_health(df: pd.DataFrame) -> pd.DataFrame:
         'Very good': 4,
         'Excellent': 5,
     }
-    if df['GeneralHealth'] in df.columns:
+    
+    # Check if 'GeneralHealth' exists in the DataFrame columns
+    if 'GeneralHealth' in df.columns:
         df['GeneralHealth'] = df['GeneralHealth'].map(gen_health_map)
         logger.info("Encoding for GeneralHealth completed.")
     else:
-        logger
+        logger.error("GeneralHealth column not found in the DataFrame!")
+    
     return df
+
+
 
 def encode_last_checkup(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("Starting encoding for LastCheckupTime column...")
@@ -165,43 +170,40 @@ def encode_tetanus_last_10(df: pd.DataFrame) -> pd.DataFrame:
         'Yes, received Tdap': 2,
         'Yes, received tetanus shot, but not Tdap': 3
     }
-    if df['TetanusLast10Tdap'] in df.columns:
-        
-        df['TetanusLast10Tdap'] = df['TetanusLast10Tdap'].map(tetanus_last_10_mapping)
-        logger.info("Encoding for TetanusLast10Tdap completed.")
+    # Check if the column exists
+    if 'TetanusLast10Tdap' in df.columns:
+        try:
+            # Perform the mapping
+            df['TetanusLast10Tdap'] = df['TetanusLast10Tdap'].map(tetanus_last_10_mapping)
+            logger.info("Encoding for TetanusLast10Tdap completed successfully.")
+        except Exception as e:
+            logger.error(f"Error during mapping: {e}")
+            raise
     else:
-        logger.info("Encoding for TetanusLast10dap failed")
+        logger.error("Column 'TetanusLast10Tdap' does not exist in the DataFrame.")
+    
     return df
 
 # One hot encoding for Sex
 def encode_sex(df: pd.DataFrame) -> pd.DataFrame:
     '''encoding feature "Sex" '''
+    
     logger.info("Starting one-hot encoding for Sex column...")
-    if df['sex'] in df.columns:
-        df = pd.get_dummies(df, columns=['Sex'], prefix='', prefix_sep='')
-        logger.info("One-hot encoding for Sex feature completed.")
+    
+    if 'Sex' in df.columns:
+        try:
+            # Perform one-hot encoding and drop the original 'Sex' column
+            df = pd.get_dummies(df, columns=['Sex'], drop_first=False)
+            logger.info("One-hot encoding for Sex feature completed successfully.")
+        except Exception as e:
+            logger.error(f"Error during one-hot encoding for 'Sex': {e}")
+            raise
     else:
-        logger.info("One-hot encoding for Sex feature failed")
+        logger.error("Column 'Sex' not found. Encoding failed.")
+    
     return df
 
-# Master transformation function
-def feature_encoding(df: pd.DataFrame) -> pd.DataFrame:
-    df = encode_general_health(df)
-    df = drop_columns(df)
-    df = encode_last_checkup(df)
-    df = encode_age_category(df)
-    df = encode_had_diabetes(df)
-    df = encode_removed_teeth(df)
-    df = encode_smoker_status(df)
-    df = encode_e_cigarette_usage(df)
-    df = encode_covid_pos(df)
-    df = encode_tetanus_last_10(df)
-    df = encode_sex(df)
-    df = encode_health_conditions(df)
-    logger.info("feature encoding completed.")
-    return df
-
-
+#encoding yes/no health conditions 
 def encode_health_conditions(df: pd.DataFrame) -> pd.DataFrame:
     """
     Maps binary health condition features from 'Yes'/'No' to 1/0 using a predefined mapping.
@@ -250,6 +252,24 @@ def encode_health_conditions(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("Transformation of health condition features completed.")
     return df
 
+# Master transformation function
+def feature_encoding(df: pd.DataFrame) -> pd.DataFrame:
+    df = encode_general_health(df)
+    df = drop_columns(df)
+    df = encode_last_checkup(df)
+    df = encode_age_category(df)
+    df = encode_had_diabetes(df)
+    df = encode_removed_teeth(df)
+    df = encode_smoker_status(df)
+    df = encode_e_cigarette_usage(df)
+    df = encode_covid_pos(df)
+    df = encode_tetanus_last_10(df)
+    df = encode_sex(df)
+    df = encode_health_conditions(df)
+    logger.info("feature encoding completed.")
+    return df
+
+
 
 """IMPUTING THE MISSING VALUES IN DF USING MICE IMPUTATIONG"""
 
@@ -258,7 +278,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
-def mice_imputation(df: pd.DataFrame, target_column: str, test_size: float = 0.2, random_state: int = 42) -> tuple:
+def mice_imputation(df: pd.DataFrame, target_column: str = 'HeartDisease', test_size: float = 0.2, random_state: int = 42) -> pd.DataFrame:
     """
     Function to perform MICE imputation on a DataFrame after splitting it into train and test sets.
     
@@ -272,6 +292,9 @@ def mice_imputation(df: pd.DataFrame, target_column: str, test_size: float = 0.2
     tuple: The transformed X_train_df2, X_test_df2, y_train_df2, y_test_df2 DataFrames.
     """
     
+    #Dropping the nans in target variable
+    df = df.dropna(subset=[target_column])
+    
     # Log the start of the transformation
     logger.info(f"Starting MICE imputation for target: {target_column}...")
     
@@ -284,61 +307,84 @@ def mice_imputation(df: pd.DataFrame, target_column: str, test_size: float = 0.2
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
     
-    # Initialize the MICE imputer
-    mice_imputer = IterativeImputer(max_iter=50, random_state=random_state)
-    
-    # Apply the imputer to the training data
-    X_train_imputed_df2 = pd.DataFrame(
-        mice_imputer.fit_transform(X_train_df2), columns=X_train_df2.columns
-    )
-    
-    # Apply the same imputer to the test data
-    X_test_imputed_df2 = pd.DataFrame(
-        mice_imputer.transform(X_test_df2), columns=X_test_df2.columns
-    )
-    
-    # Log completion of the transformation
-    logger.info("MICE imputation completed successfully.")
+    try:
+        # Initialize the MICE imputer
+        mice_imputer = IterativeImputer(max_iter=50, random_state=random_state)
+        
+        # Apply the imputer to the training data
+        X_train_imputed_df2 = pd.DataFrame(
+            mice_imputer.fit_transform(X_train_df2), columns=X_train_df2.columns
+        )
+        
+        # Apply the same imputer to the test data
+        X_test_imputed_df2 = pd.DataFrame(
+            mice_imputer.transform(X_test_df2), columns=X_test_df2.columns
+        )
+        
+        # Log completion of the transformation
+        logger.info("MICE imputation completed successfully.")
+    except Exception as e:
+        logger.critical(f"Mice imputation has failed {e}")
     
     # Return the transformed data
     return X_train_imputed_df2, X_test_imputed_df2, y_train_df2, y_test_df2
 
 
-def Cleaning_imputation(X_train_imputed, X_test_imputed):
-    
+def cleaning_imputation(X_train_imputed: pd.DataFrame, X_test_imputed: pd.DataFrame, y_train_df2: pd.Series):
     '''
-    performing mice imputation results with the imputed values mostly having alot of float values
-    that might be inconsistent and such we will be cleaning them
+    Performing MICE imputation results with the imputed values mostly having a lot of float values
+    that might be inconsistent, so we will clean them.
     '''
-    # Round off the MICE imputation results before clipping
-    X_train_imputed = X_train_imputed.round().astype(int)
-    X_test_imputed = X_test_imputed.round().astype(int)
     
-    # Clip values within the specified ranges
-    X_train_imputed['MentalHealthDays'] = X_train_imputed['MentalHealthDays'].clip(0, 30)
-    X_test_imputed['MentalHealthDays'] = X_test_imputed['MentalHealthDays'].clip(0, 30)
+    logger.info(f'Start Cleaning the MICE imputation float values and inconsistencies')
+    
+    try:
+        # Round off the MICE imputation results before clipping
+        logger.info('Rounding off the imputed values to integers...')
+        X_train_imputed = X_train_imputed.round().astype(int)
+        X_test_imputed = X_test_imputed.round().astype(int)
+        
+        # Clip values within the specified ranges
+        logger.info('Clipping the MentalHealthDays feature...')
+        X_train_imputed['MentalHealthDays'] = X_train_imputed['MentalHealthDays'].clip(0, 30)
+        X_test_imputed['MentalHealthDays'] = X_test_imputed['MentalHealthDays'].clip(0, 30)
 
-    # Clip other features similarly
-    X_train_imputed['PhysicalHealthDays'] = X_train_imputed['PhysicalHealthDays'].clip(0, 30)
-    X_test_imputed['PhysicalHealthDays'] = X_test_imputed['PhysicalHealthDays'].clip(0, 30)
+        # Clip other features similarly
+        logger.info('Clipping the PhysicalHealthDays feature...')
+        X_train_imputed['PhysicalHealthDays'] = X_train_imputed['PhysicalHealthDays'].clip(0, 30)
+        X_test_imputed['PhysicalHealthDays'] = X_test_imputed['PhysicalHealthDays'].clip(0, 30)
 
-    # Clip AgeCategory
-    X_train_imputed['AgeCategory'] = X_train_imputed['AgeCategory'].clip(lower=1, upper=13)
-    X_test_imputed['AgeCategory'] = X_test_imputed['AgeCategory'].clip(lower=1, upper=13)
+        # Clip AgeCategory
+        logger.info('Clipping the AgeCategory feature...')
+        X_train_imputed['AgeCategory'] = X_train_imputed['AgeCategory'].clip(lower=1, upper=13)
+        X_test_imputed['AgeCategory'] = X_test_imputed['AgeCategory'].clip(lower=1, upper=13)
 
-    # Remove any GeneralHealth values equal to 0 in the training set
-    mask = X_train_imputed['GeneralHealth'] != 0
-    X_train_imputed = X_train_imputed[mask]
-    y_train_imputed = y_train_imputed[mask]  # Adjust y_train accordingly if you filter X_train to be the same number of rows
+        
+        
+        # fix any GeneralHealth values equal to 0 in the training set
+        logger.info('fixing inconsistent round off in generalhealth...')
+        X_train_imputed['GeneralHealth'] = X_train_imputed['GeneralHealth'].replace(0, 1)
+        
+        # Reset the index to avoid any potential issues with mismatched indices
+        X_train_imputed = X_train_imputed.reset_index(drop=True)
+        y_train_df2 = y_train_df2.reset_index(drop=True)
 
-    return X_train_imputed, X_test_imputed
+        logger.info(f'Successfully cleaned MICE imputation inconsistencies')
+        
+        return X_train_imputed, X_test_imputed, y_train_df2
+    
+    except Exception as e:
+        logger.error(f'MICE imputation cleaning has failed: {e}')
+        # Return the original dataframes in case of an error, so that the process can continue
+        raise
+    
     
  
 '''COMBINING THE DATASET ''' 
     
     
     
-def split_data(df1, target_column='HeartDisease', test_size=0.2, random_state=42):
+def split_data(df_1:pd.DataFrame, target_column='HeartDisease', test_size=0.2, random_state=42):
     """
     This function splits df1 into training and testing sets, ensuring stratification of the target variable.
     this is so that we match the df2 and we can combine them 
@@ -355,10 +401,12 @@ def split_data(df1, target_column='HeartDisease', test_size=0.2, random_state=42
     - y_train_df1: Target variable for the training set.
     - y_test_df1: Target variable for the testing set.
     """
+    logger.info(f'Starting splitting data on df1')
+    
     try:
         # Separate the features (X) and target variable (y)
-        X_df1 = df1.drop(columns=[target_column])  # Drop the target column to get features
-        y_df1 = df1[target_column]  # The target column
+        X_df1 = df_1.drop(columns=[target_column])  # Drop the target column to get features
+        y_df1 = df_1[target_column]  # The target column
 
         # Split the data into training and testing sets with stratification on the target variable
         X_train_df1, X_test_df1, y_train_df1, y_test_df1 = train_test_split(
@@ -385,6 +433,7 @@ def combine_datasets(X_train_df1, X_test_df1, X_train_df2, X_test_df2, y_train_d
     Returns:
     Combined X_train, X_test, y_train, y_test DataFrames.
     """
+    logger.info(f'Performing combining of the two datasets')
     # Combine the training features and target variables
     X_train_combined = pd.concat([X_train_df1, X_train_df2], axis=0)
     X_test_combined = pd.concat([X_test_df1, X_test_df2], axis=0)
@@ -393,12 +442,14 @@ def combine_datasets(X_train_df1, X_test_df1, X_train_df2, X_test_df2, y_train_d
     y_train_combined = pd.concat([y_train_df1, y_train_df2], axis=0)
     y_test_combined = pd.concat([y_test_df1, y_test_df2], axis=0)
     
+    logger.info(f'The two dataset has been successfully combined!')
+    
     return X_train_combined, X_test_combined, y_train_combined, y_test_combined
 
 
 """Handling inconsistent values
 """
-def Handling_Inconsistencies(row):
+def transform_and_apply_genhealth(row):
     '''Check for high Physical and Mental Health scores, and classify based on chronic conditions.
     there are some inconsistent values like having physical health days of 30 (meaning they are experiencing
     physical health problems everyday) but their general health score is == 'Excellent' which doesnt match
@@ -443,7 +494,7 @@ def Handling_Inconsistencies(row):
 
 
 
-def transform_and_apply_genhealth(X_train_combined, X_test_combined):
+def handling_Inconsistencies(X_train_combined, X_test_combined):
     """applying tranformation handling inconsistencies 
     """
     try:
@@ -451,8 +502,8 @@ def transform_and_apply_genhealth(X_train_combined, X_test_combined):
         logger.info("Starting GeneralHealth transformation...")
 
         # Apply the determine_genhealth function to both train and test data
-        X_train_combined['GeneralHealth'] = X_train_combined.apply(Handling_Inconsistencies, axis=1)
-        X_test_combined['GeneralHealth'] = X_test_combined.apply(Handling_Inconsistencies, axis=1)
+        X_train_combined['GeneralHealth'] = X_train_combined.apply(transform_and_apply_genhealth, axis=1)
+        X_test_combined['GeneralHealth'] = X_test_combined.apply(transform_and_apply_genhealth, axis=1)
 
         # Log successful transformation
         logger.info("GeneralHealth transformation completed successfully.")
@@ -535,7 +586,7 @@ def calculate_lifestyle_score(row: pd.Series) -> float:
         logger.error(f"Error calculating lifestyle score: {e}")
         raise  # Re-raise the exception for the pipeline to handle
 
-def feature_engineering(X_combined: pd.DataFrame) -> pd.DataFrame:
+def transform_and_select_features(X_combined: pd.DataFrame) -> pd.DataFrame:
     '''
     Perform feature engineering for the given dataset X_combined.
     
@@ -580,7 +631,7 @@ def feature_engineering(X_combined: pd.DataFrame) -> pd.DataFrame:
         raise  
 
 
-def transform_and_select_features(X_train_combined: pd.DataFrame, X_test_combined: pd.DataFrame) -> pd.DataFrame:
+def feature_engineering(X_train_combined: pd.DataFrame, X_test_combined: pd.DataFrame) -> pd.DataFrame:
     '''
     Apply feature engineering / interactions to both training and test datasets.
     
@@ -596,8 +647,8 @@ def transform_and_select_features(X_train_combined: pd.DataFrame, X_test_combine
         logger.info("Starting data transformation...")
 
         # Apply feature engineering to both training and test data
-        X_train_combined = feature_engineering(X_train_combined)
-        X_test_combined = feature_engineering(X_test_combined)
+        X_train_combined = transform_and_select_features(X_train_combined)
+        X_test_combined = transform_and_select_features(X_test_combined)
         
         logger.info("Feature engineering applied successfully.")
         
@@ -642,10 +693,16 @@ def feature_selection_with_rf(X_train_combined, X_test_combined, y_train_combine
         X_train_selected = selector.transform(X_train_combined)
         X_test_selected = selector.transform(X_test_combined)
 
+        # Handle the case if the input data is not a DataFrame (e.g., NumPy array)
+        if isinstance(X_train_combined, pd.DataFrame):
+            selected_features = X_train_combined.columns[selector.get_support()]
+        else:
+            selected_features = [f"Feature_{i}" for i in range(X_train_selected.shape[1])]
+
         # Convert selected features back to DataFrame for clarity
-        selected_features = X_train_combined.columns[selector.get_support()]
         X_train_selected = pd.DataFrame(X_train_selected, columns=selected_features)
         X_test_selected = pd.DataFrame(X_test_selected, columns=selected_features)
+        
         logger.info(f"Selected features: {selected_features}")
 
         # Initialize Stratified K-Folds for cross-validation
@@ -663,7 +720,12 @@ def feature_selection_with_rf(X_train_combined, X_test_combined, y_train_combine
         # Display shape of the transformed data
         logger.info(f"Shape of selected data: {X_train_selected.shape}")
         
-        return X_train_selected, X_test_selected, selected_features
+        logger.info("feature selection successfully implemented")
+        
+        
+        
+        
+        return X_train_selected, X_test_selected
     
     except Exception as e:
         logger.error(f"Error during feature selection process: {e}")

@@ -14,7 +14,7 @@ def load_data(file_name: str) -> pd.DataFrame:
     """
     try:
         # Define the file path
-        file_path = os.path.join(os.getcwd(), 'notebook', 'data', 'raw', file_name)
+        file_path = os.path.join(os.getcwd(), 'data', 'raw', file_name)
         if not os.path.exists(file_path):
             logger.error(f"File not found: {file_path}")
             raise FileNotFoundError(f"The file {file_name} was not found at {file_path}")
@@ -31,34 +31,35 @@ def load_data(file_name: str) -> pd.DataFrame:
         
 def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform a quick basic cleaning removing duplicates in the data
+    Perform a quick basic cleaning, including removing duplicates and renaming columns.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame to be cleaned.
+
+    Returns:
+        pd.DataFrame: The cleaned DataFrame.
     """
+    
+    
+    
     try:
         logger.info("Starting data cleaning process.")
+        
+        # Make a copy to ensure we're working with an independent DataFrame
+        data = data.copy()
         
         # Drop duplicates
         data = data.drop_duplicates()
         logger.info("Duplicates removed.")
+
+        # Rename the column 'HadHeartAttack' to 'HeartDisease'
+        if 'HadHeartAttack' in data.columns:
+            data = data.rename(columns={'HadHeartAttack': 'HeartDisease'})
+            logger.info("Column 'HadHeartAttack' renamed to 'HeartDisease'.")
+        else:
+            logger.warning("Column 'HadHeartAttack' not found. No renaming performed.")
         
         return data
     except Exception as e:
-        logger.exception(f"Error during data cleaning: {e}")
+        logger.exception("Error during data cleaning.")
         raise e
-    
-    
-if __name__ == "__main__":
-    try:
-        # Load datasets
-        df_1 = load_data('heart_2022_no_nans.csv')
-        df_2 = load_data('heart_2022_with_nans.csv')
-        print(f"Data 1 Shape: {df_1.shape}, Data 2 Shape: {df_2.shape}")
-        
-        # Clean datasets
-        df_1 = clean_data(df_1)
-        df_2 = clean_data(df_2)
-        
-        logger.info("Data processed successfully.")
-        print(f"Data 1 Shape: {df_1.shape}, Data 2 Shape: {df_2.shape}")
-    except Exception as e:
-        logger.exception(f"Error in main pipeline: {e}")
-        print(f"Error in pipeline: {e}")
