@@ -23,7 +23,7 @@ def feature_scaling(X_train_selected:pd.DataFrame ,X_test_selected:pd.DataFrame)
         
         logger.info("Standardization was successful")
         
-        return X_test_selected, X_test_selected
+        return X_train_selected, X_test_selected
     
     except Exception as e:
         logger.info("an error has occured while doing standardization, {e}")
@@ -90,10 +90,10 @@ def hyperparameter_tuning(X_train: pd.DataFrame, y_train: pd.Series):
     try:
         #hyperparameter search space
         param_distributions = { 
-            'n_estimators': randint(700, 1000),
-            'max_depth': randint(3, 30),
+            'n_estimators': randint(700, 1500),
+            'max_depth': randint(3, 25),
             'min_samples_split': randint(2, 20),
-            'min_samples_leaf': randint(1, 20),
+            'min_samples_leaf': randint(1, 15),
             'class_weight': ['balanced', {0: 1, 1: 5.5}, {0: 1, 1: 6},{0: 1, 1: 6.25},{0: 1, 1: 6.5},{0: 1, 1: 6.75}],
         }
         
@@ -101,7 +101,7 @@ def hyperparameter_tuning(X_train: pd.DataFrame, y_train: pd.Series):
         rf_model = RandomForestClassifier(random_state=42)
         
         # StratifiedKFold cross-validation (5 folds)
-        cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
         
         # Define the scorer for RandomizedSearchCV
         f1_scorer = make_scorer(f1_score)
@@ -111,11 +111,11 @@ def hyperparameter_tuning(X_train: pd.DataFrame, y_train: pd.Series):
             estimator=rf_model,
             param_distributions=param_distributions,
             scoring=f1_scorer,
-            n_iter=50,  # Number of random search iterations
+            n_iter=60,  # Number of random search iterations
             cv=cv,
             verbose=1,
             random_state=42,
-            n_jobs=7  
+            n_jobs=-1  
         )
         
         # Fit the model with the random search
@@ -174,27 +174,3 @@ def evaluate_model(best_model, X_test: pd.DataFrame, y_test: pd.Series):
     
     
     
-"""SAVING OUR FINAL BEST MODEL FOR DEPLOYMENT"""    
-#libraries for saving our model    
-import joblib
-import os    
-def save_model(model, model_filename: str):
-    """Saves the trained model to a file in the 'model' directory using joblib."""
-    try:
-        # Define the correct model directory
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.join(current_dir, '..', '..')  # Navigate 2 lvls up components>src>root
-        model_dir = os.path.join(project_root, 'model')  # Use the 'model' folder
-        
-        # Create the model directory if it doesn't exist
-        if not os.path.exists(model_dir):
-            os.makedirs(model_dir)
-        
-        # Full path to save the model
-        model_path = os.path.join(model_dir, model_filename)
-        
-        # Save the model
-        joblib.dump(model, model_path)
-        logger.info(f"Model saved to {model_path}")
-    except Exception as e:
-        logger.error(f"An error occurred while saving the model: {e}")

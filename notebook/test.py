@@ -1,26 +1,11 @@
-import sys
-import os
 
-# Add 'src' directory to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "src")))
 
-# Test importing another module
-try:
-    import pandas as pd
-    print("Pandas imported successfully.")
-except ModuleNotFoundError as e:
-    print(f"Error importing pandas: {e}")
+import zipfile
 
-# Test importing a module from your project
-try:
-    from src.components.data_transformation import transform_features
-    print("Data transformation module imported successfully.")
-except ModuleNotFoundError as e:
-    print(f"Error importing from src.components.data_transformation: {e}")
+file_name = "model/RandomForest_best_model.pkl"  # Path to your model file
+zip_file_name = "RandomForest_best_model.zip"   # Output zip file name
 
-# Try importing a random function from another file (e.g., a utility function)
-try:
-    from src.utils import some_function  # Make sure src/utils.py exists
-    print("Function from utils imported successfully.")
-except ModuleNotFoundError as e:
-    print(f"Error importing from src.utils: {e}")
+with zipfile.ZipFile(zip_file_name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+    # Add file to the zip archive
+    # Use arcname to exclude the "model/" prefix in the zip file if desired
+    zipf.write(file_name, arcname="RandomForest_best_model.pkl")
