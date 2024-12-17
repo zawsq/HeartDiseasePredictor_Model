@@ -7,3 +7,5 @@ fancyimpute
 fastapi
 uvicorn
 pydantic
+flask
+requests

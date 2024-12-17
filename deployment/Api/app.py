@@ -7,7 +7,7 @@ import uvicorn
 
 app = FastAPI()
 
-@app.post("/predict")
+@app.post('/predict')
 def predict_endpoint(user_input: HeartDiseaseInput):
     """
     Endpoint for predicting heart disease based on user input.
@@ -18,11 +18,12 @@ def predict_endpoint(user_input: HeartDiseaseInput):
     Returns:
     - dict: The prediction result.
     """
+    
     # Log the incoming request
     logger.info("Received prediction request with input: %s", user_input.model_dump())
 
     try:
-        # Convert user input to dictionary using Pydantic's .dict() method
+        # Convert user input to dictionary using Pydantic's .model_dump() method
         user_input_dict = user_input.model_dump()
 
         # Log the input dictionary before prediction
@@ -35,7 +36,7 @@ def predict_endpoint(user_input: HeartDiseaseInput):
         logger.info("Prediction result: %s", prediction)
 
         # Return the prediction result
-        return {"prediction": prediction[0]}
+        return {"prediction": int(prediction[0])}
 
     except Exception as e:
         # Log any errors that occur during the prediction process

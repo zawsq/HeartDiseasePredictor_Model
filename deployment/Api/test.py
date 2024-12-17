@@ -5,7 +5,7 @@ url = "http://127.0.0.1:8000/predict"
 
 # Define the data you want to send (make sure it matches the HeartDiseaseInput schema)
 data = {
-  "Age":-1,
+  "Age":18,
   "Height": 175.5,
   "Weight": 1000,
   "HadAngina": 0,

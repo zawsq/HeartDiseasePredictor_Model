@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Left Navigation -->
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about_the_model">About the Model</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Heart Disease Prediction</h1>
+
+        <!-- Prediction Display -->
+        {% if prediction is defined %}
+            <div class="result">
+                <h2>Prediction: 
+                    {% if prediction == 1 %}
+                        Yes
+                    {% elif prediction == 0 %}
+                        No
+                    {% endif %}
+                </h2>
+            </div>
+        {% endif %}
+
+        <form action="/predict" method="post">
+            <!-- Age -->
+            <label for="Age">Age</label>
+            <input type="number" name="Age" id="Age" min="0" required>
+
+            <!-- Height -->
+            <label for="Height">Height (cm)</label>
+            <input type="number" name="Height" id="Height" step="0.1" min="0" required>
+
+            <!-- Weight -->
+            <label for="Weight">Weight (kg)</label>
+            <input type="number" name="Weight" id="Weight" step="0.1" min="0" required>
+
+            <!-- Had Angina -->
+            <label for="HadAngina">Had Angina?</label>
+            <select name="HadAngina" id="HadAngina" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <!-- Physical and Mental Health Days -->
+            <label for="PhysicalHealthDays">Physical Health Days (last 30 days)</label>
+            <input type="number" name="PhysicalHealthDays" id="PhysicalHealthDays" min="0" max="30" required>
+
+            <label for="MentalHealthDays">Mental Health Days (last 30 days)</label>
+            <input type="number" name="MentalHealthDays" id="MentalHealthDays" min="0" max="30" required>
+
+            <!-- Smoker Status -->
+            <label for="SmokerStatus">Smoker Status</label>
+            <select name="SmokerStatus" id="SmokerStatus" required>
+                <option value="0">Never</option>
+                <option value="1">Former</option>
+                <option value="2">Current</option>
+            </select>
+
+            <!-- E-Cigarette Usage -->
+            <label for="ECigaretteUsage">E-Cigarette Usage</label>
+            <select name="ECigaretteUsage" id="ECigaretteUsage" required>
+                <option value="0">Never</option>
+                <option value="1">Former</option>
+                <option value="2">Current</option>
+            </select>
+
+            <!-- Alcohol Drinker -->
+            <label for="AlcoholDrinker">Alcohol Drinker?</label>
+            <select name="AlcoholDrinker" id="AlcoholDrinker" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <!-- Physical Activities -->
+            <label for="PhysicalActivities">Physical Activities?</label>
+            <select name="PhysicalActivities" id="PhysicalActivities" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <!-- Removed Teeth -->
+            <label for="RemovedTeeth">Removed Teeth</label>
+            <select name="RemovedTeeth" id="RemovedTeeth" required>
+                <option value="0">None</option>
+                <option value="1">1-5</option>
+                <option value="2">6+</option>
+                <option value="3">All</option>
+            </select>
+
+            <!-- Sleep Hours -->
+            <label for="SleepHours">Sleep Hours (per night)</label>
+            <input type="number" name="SleepHours" id="SleepHours" step="0.1" min="0" required>
+
+            <!-- Chronic Disease Indicators -->
+            {% for disease in ['Stroke', 'COPD', 'Diabetes', 'Arthritis', 'KidneyDisease', 'SkinCancer', 'Asthma'] %}
+            <label for="Had{{ disease }}">Had {{ disease }}?</label>
+            <select name="Had{{ disease }}" id="Had{{ disease }}" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+            {% endfor %}
+
+            <button type="submit">Predict</button>
+        </form>
+    </div>
+</body>
+</html>

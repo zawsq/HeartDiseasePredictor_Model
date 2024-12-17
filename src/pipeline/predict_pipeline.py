@@ -14,7 +14,7 @@ from src.logger import logger
 
 
 
-def preprocess_user_input(user_input):
+def preprocess_user_input(user_input:dict):
     """
     Preprocesses the user input from the web form into a pandas DataFrame
     and applies necessary transformations to match the model's expected input order.
@@ -77,13 +77,12 @@ def preprocess_user_input(user_input):
     user_df['health_days'] = health_days
     logger.info("Calculated health days: %s", health_days)
 
-    # Add 'AgeCategory' by calling the map_age_to_category function
+    #Add 'AgeCategory' by calling the map_age_to_category function
     age = user_input['Age']
     user_df['AgeCategory'] = map_age(age)
     logger.info("Mapped age to category: %s", user_df['AgeCategory'])
 
-    # Add 'HadAngina' (default to 0 if not provided)
-    #user_df['HadAngina'] = user_input.get('HadAngina', 0)
+
 
     # Define the correct column order
     column_order = [
@@ -116,15 +115,16 @@ def preprocess_user_input(user_input):
 
     return user_df_scaled
 
-def predict(user_input):
+def predict(user_input: pd.DataFrame):
     """
     Predict the likelihood of heart disease based on user input.
 
     Parameters:
-    - user_input (dict): Dictionary containing the user's data.
+    - user_input dataframe now because it was transformed in the preprocess function
+    
     
     Returns:
-    - prediction: The prediction result from the model.
+    - prediction: The prediction result from the model and gets sent to the api.
     """
     # Preprocess the user input (calculate scores and transform data)
     logger.info("Preprocessing user input for prediction.")
