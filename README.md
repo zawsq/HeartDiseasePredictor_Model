@@ -1,14 +1,19 @@
 # Heart Disease Prediction Using Machine Learning
 
 ## Overview
-This project aims to predict the likelihood of heart disease based on various health and lifestyle indicators. Using machine learning models, I developed a robust solution that tackles several key challenges often encountered in real-world datasets, such as class imbalance, missing data, feature importance, and dimensionality reduction. The primary goal is to build a model that can effectively predict heart disease, while also prioritizing recall, which is crucial in medical applications to avoid false negatives.
+This project aims to predict the likelihood of heart disease based on various health and lifestyle indicators. Using machine learning models, I developed a robust solution that tackles several key challenges often encountered in real-world datasets, such as class imbalance, missing data, combining data, feature importance and interaction. The primary goal is to build a model that can effectively predict heart disease, while also prioritizing recall, which is crucial in medical applications to avoid false negatives.
 
 The project utilizes an ensemble of models, such as RandomForest, CatBoost, LightGBM, and XGBoost, to handle the complexity and non-linear relationships within the data. The final model demonstrates high performance, with a focus on making accurate predictions for both healthy individuals and those with heart disease.
 
 ## Why This Project?
-Heart disease is one of the leading causes of death worldwide, and early detection is critical for effective treatment. I chose this project to showcase my ability to apply machine learning techniques to a real-world healthcare problem, addressing challenges such as imbalanced datasets and data inconsistencies. The project is also a demonstration of how to handle large datasets and implement a robust model pipeline.
+Heart disease is one of the leading causes of death worldwide, and early detection is critical for effective treatment. I chose this project to showcase my ability to apply machine learning techniques to a real-world healthcare problem, addressing challenges such as imbalanced datasets and data inconsistencies. The project is also a demonstration of how to handle large datasets and implement a great model pipeline and structure that you should follow.
 
-In addition, this project serves as a learning resource for aspiring data scientists, providing clear explanations of each step in the data science pipeline—from data ingestion to model deployment. The goal is to make the project accessible to beginners while also incorporating advanced techniques used in professional data science projects.
+In addition, this project serves as a learning resource for aspiring data scientists, providing clear explanations of each step in the data science pipeline—from data ingestion to model deployment. The goal is to make the project accessible to beginners while also incorporating advanced techniques used in professional data science projects and i recommend to check my jupyter notebook for clear information about each of the steps done.
+
+**link to my jupyter notebooks**
+[Link to my Jupyter Notebook](./notebook/EDA.ipynb) part one
+[Link to my Jupyter Notebook](./notebook/model_training.ipynb) part two
+
 
 ## Problem Statement
 The dataset contains various health and lifestyle features that are used to predict the likelihood of heart disease. The target variable (HeartDisease) is highly imbalanced, with a distribution of 95% healthy and 5% heart disease, which poses a challenge for training an effective machine learning model. This project addresses several challenges, including:
