@@ -33,7 +33,7 @@ The dataset used in this project is sourced from Kaggle, and it includes health-
 The dataset originally comes from the CDC and is a major part of the Behavioral Risk Factor Surveillance System (BRFSS), which conducts annual telephone surveys to collect data on the health status of U.S. residents. As described by the CDC: "Established in 1984 with 15 states, BRFSS now collects data in all 50 states, the District of Columbia, and three U.S. territories. BRFSS completes more than 400,000 adult interviews each year.'''
 
 you can find more info about the dataset in this link right here
-[Source:](https://www.kaggle.com/datasets/kamilpytlak/personal-key-indicators-of-heart-disease)
+[Source of the data:](https://www.kaggle.com/datasets/kamilpytlak/personal-key-indicators-of-heart-disease)
 
 
 The dataset consists of three files:
@@ -41,7 +41,7 @@ The dataset consists of three files:
 - **2020 dataset**: 300k rows, 12 features.
 - **2022 dataset**: Two versions (one with missing values and one without), each containing 300k+ rows and 40 features.
 
-The features include various health indicators such as age, weight, smoking status, physical activity, and chronic diseases. The target variable is **HeartDisease**, which indicates whether the individual has heart disease.
+The features include various health indicators such as age, weight, smoking status, physical activity, and other diseases (stroke, diabetic,COPD). The target variable is **HeartDisease**, which indicates whether the individual has heart disease.
 
 ## Project Workflow
 The project is structured in a modular pipeline to ensure flexibility and scalability. The workflow includes the following stages:
