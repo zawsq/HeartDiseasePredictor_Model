@@ -10,9 +10,10 @@ Heart disease is one of the leading causes of death worldwide, and early detecti
 
 In addition, this project serves as a learning resource for aspiring data scientists, providing clear explanations of each step in the data science pipeline—from data ingestion to model deployment. The goal is to make the project accessible to beginners while also incorporating advanced techniques used in professional data science projects and i recommend to check my jupyter notebook for clear information about each of the steps done.
 
-**link to my jupyter notebooks**
-[Link to my Jupyter Notebook](./notebook/EDA.ipynb) part one
-[Link to my Jupyter Notebook](./notebook/model_training.ipynb) part two
+**links to my jupyter notebooks**
+[Link to my Jupyter Notebook part one - preprocessing, exploratory data analysis](./notebook/EDA.ipynb)
+
+[Link to my Jupyter Notebook part two - feature scaling, model training, hyperparameter tuning and resampling techniques ](./notebook/model_training.ipynb)
 
 
 ## Problem Statement
