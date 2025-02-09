@@ -13,14 +13,6 @@ def about_the_model():
     return render_template("about_the_model.html")
 
 
-
-
-
-
-
-
-
-
 @website.route('/predict', methods=['POST'])
 def predict():
     try:
