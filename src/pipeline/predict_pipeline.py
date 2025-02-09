@@ -10,8 +10,7 @@ from src.prediction_utils import (
     map_age
 )
 from deployment.Api.model_loader import load_model
-from src.logger import logger
-
+import logging as logger
 
 
 def preprocess_user_input(user_input:dict):
